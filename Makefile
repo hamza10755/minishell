@@ -1,11 +1,12 @@
 NAME = minishell
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -I includes
+LDFLAGS = -lreadline -lncurses
 
 SRC = src
-LIBFTDIR = libft
+LIBFTDIR = libft 
 
-SRCS = parsing/tokens.c
+SRCS = parsing/tokens.c parsing/main.c utils/free.c
 
 SRC_FILES = $(addprefix $(SRC)/, $(SRCS))
 OBJ_FILES = $(SRC_FILES:.c=.o)
@@ -18,7 +19,7 @@ all: $(NAME)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME): $(LIBFT) $(OBJ_FILES)
-	@$(CC) $(OBJ_FILES) -L$(LIBFTDIR) -lft -o $(NAME)
+	@$(CC) $(OBJ_FILES) -L$(LIBFTDIR) -lft -o $(NAME) $(LDFLAGS)
 
 $(LIBFT):
 	@make -C $(LIBFTDIR)
