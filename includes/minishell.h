@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 13:33:33 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/02/25 13:49:55 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/02/27 00:17:19 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,11 @@ typedef enum e_token_type
 }						t_token_type;
 
 t_token					*tokenize(const char *input);
+void	flush_buffer(char *buffer, size_t *j, t_token **tokens, int type);
+t_token	*add_token(t_token **tokens, const char *value, int type);
+void	handle_special_tokens(const char *input, int *i, char *buffer,
+		size_t *j, t_token **tokens, int current_type);
+int	token_type(const char *str, int pos);
 void					free_tokens(t_token *tokens);
 
 #endif

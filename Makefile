@@ -6,7 +6,7 @@ LDFLAGS = -lreadline -lncurses
 SRC = src
 LIBFTDIR = libft 
 
-SRCS = parsing/tokens.c parsing/main.c utils/free.c
+SRCS = parsing/tokenize1.c parsing/tokenize2.c parsing/main.c utils/free.c
 
 SRC_FILES = $(addprefix $(SRC)/, $(SRCS))
 OBJ_FILES = $(SRC_FILES:.c=.o)
