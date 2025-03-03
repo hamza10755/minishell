@@ -6,7 +6,7 @@
 /*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/03 08:08:38 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/03/03 11:45:47 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/03/03 14:14:08 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 char *expand_varibles(char *str, char **env)
 {
     (void)env;
-    if (ft_strcmp(str, "$USER") == 0)
+    if (ft_strncmp(str, "$USER",100000) == 0)
         return ft_strdup("hamza");
     return ft_strdup(str);
 }
@@ -24,7 +24,7 @@ char *expand_varibles(char *str, char **env)
 char *expand_tilde(char *str, char **env)
 {
     (void)env;
-    if (ft_strcmp(str, "~") == 0)
+    if (ft_strncmp(str, "~",1000) == 0)
         return ft_strdup("/home/hamza");
     return ft_strdup(str);
 }
