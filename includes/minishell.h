@@ -6,7 +6,7 @@
 /*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 13:33:33 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/02/25 13:49:55 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/03/03 08:11:49 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,26 @@ typedef enum e_token_type
 	TOKEN_APPEND = 8
 }						t_token_type;
 
+
+//--------------------tokeizing--------------------
+int						token_type(const char *str, int pos);
+void					handle_quote(const char *input, int *i, char *buffer,
+							size_t *j, t_token **tokens);
+void					handle_heredoc_append(const char *input, int *i,
+							char *buffer, size_t *j, t_token **tokens,
+							int current_type);
+void					handle_redir_pipe_semicolon(const char *input, int *i,
+							char *buffer, size_t *j, t_token **tokens,
+							int current_type);
+void					handle_special_tokens(const char *input, int *i,
+							char *buffer, size_t *j, t_token **tokens,
+							int current_type);
+void					handle_word_chars(const char *input, int *i,
+							char *buffer, size_t *j);
+void					flush_buffer(char *buffer, size_t *j, t_token **tokens,
+							int type);
+t_token					*add_token(t_token **tokens, const char *value,
+							int type);
 t_token					*tokenize(const char *input);
 void					free_tokens(t_token *tokens);
 

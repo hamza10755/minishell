@@ -6,7 +6,7 @@
 /*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/26 16:34:51 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/02/26 17:25:19 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/03/03 11:06:30 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ void	handle_word_chars(const char *input, int *i, char *buffer, size_t *j)
 	buffer[(*j)++] = input[*i];
 	(*i)++;
 }
-
+/*adds a new token used almost everywhere*/
 void	flush_buffer(char *buffer, size_t *j, t_token **tokens, int type)
 {
 	if (*j > 0)
@@ -27,7 +27,7 @@ void	flush_buffer(char *buffer, size_t *j, t_token **tokens, int type)
 		*j = 0;
 	}
 }
-
+/*checks if its an empty linked list it puts it at first if not starts to put it in last*/
 t_token	*add_token(t_token **tokens, const char *value, int type)
 {
 	t_token	*new_token;
@@ -36,7 +36,7 @@ t_token	*add_token(t_token **tokens, const char *value, int type)
 	new_token = (t_token *)malloc(sizeof(t_token));
 	if (!new_token)
 		return (NULL);
-	new_token->value = strdup(value);
+	new_token->value = ft_strdup(value);
 	if (!new_token->value)
 	{
 		free(new_token);
@@ -55,7 +55,7 @@ t_token	*add_token(t_token **tokens, const char *value, int type)
 	}
 	return (new_token);
 }
-
+/*walk throught the tokens and deciding what is the token type*/
 static void	process_token(const char *input, int *i, char *buffer, size_t *j,
 		t_token **tokens)
 {
@@ -83,11 +83,10 @@ static void	process_token(const char *input, int *i, char *buffer, size_t *j,
 		handle_word_chars(input, i, buffer, j);
 }
 
-
 t_token	*tokenize(const char *input)
 {
 	t_token	*tokens;
-	char	buffer[4096];
+	char	buffer[2048];
 	int		i;
 	size_t	j;
 

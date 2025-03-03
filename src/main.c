@@ -6,11 +6,11 @@
 /*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/25 13:33:06 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/02/25 13:53:01 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/03/03 11:37:22 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../../includes/minishell.h"
+#include "../includes/minishell.h"
 
 int	main(void)
 {
