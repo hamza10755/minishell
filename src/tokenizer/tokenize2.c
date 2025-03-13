@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenize2.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 13:51:46 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/03/13 14:51:53 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/03/13 20:18:35 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,26 +75,36 @@ int	handle_single_operator(const char *input, int *i, char *buffer, size_t *j,
 	return (type);
 }
 
-int	handle_operator(const char *input, int *i, char *buffer, size_t *j,
-		t_token **tokens)
+int handle_operator(const char *input, int *i, char *buffer, size_t *j, t_token **tokens)
 {
-	char	current;
-	char	next;
-	int		type;
-
-	current = input[*i];
-	next = input[*i + 1];
-	flush_buffer(buffer, j, tokens);
-	if (current == '<' && next == '<')
-		type = handle_double_operator(input, i, buffer, j, TOKEN_HEREDOC);
-	else if (current == '>' && next == '>')
-		type = handle_double_operator(input, i, buffer, j, TOKEN_APPEND);
-	else if (current == '|')
-		type = handle_single_operator(input, i, buffer, j, TOKEN_PIPE);
-	else if (current == ';')
-		type = handle_single_operator(input, i, buffer, j, TOKEN_SEMICOLON);
+    char current = input[*i];
+    char next = input[*i + 1];
+    char next_next;
+    int type;
+	
+	if (input[*i + 2])
+    	next_next = input[*i + 2];
 	else
-		type = handle_single_operator(input, i, buffer, j, TOKEN_REDIR);
-	flush_buffer(buffer, j, tokens);
-	return (type);
+    	next_next = '\0';
+    if ((current == '>' && next == '>' && next_next == '>') ||
+        (current == '<' && next == '<' && next_next == '<'))
+    {
+        flush_buffer(buffer, j, tokens);
+        printf("minishell: syntax error near unexpected token \n");
+        *i += 3;
+        return (-1);
+    }
+    flush_buffer(buffer, j, tokens);
+    if (current == '<' && next == '<')
+        type = handle_double_operator(input, i, buffer, j, TOKEN_HEREDOC);
+    else if (current == '>' && next == '>')
+        type = handle_double_operator(input, i, buffer, j, TOKEN_APPEND);
+    else if (current == '|')
+        type = handle_single_operator(input, i, buffer, j, TOKEN_PIPE);
+    else if (current == ';')
+        type = handle_single_operator(input, i, buffer, j, TOKEN_SEMICOLON);
+    else
+        type = handle_single_operator(input, i, buffer, j, TOKEN_REDIR);
+    flush_buffer(buffer, j, tokens);
+    return (type);
 }
