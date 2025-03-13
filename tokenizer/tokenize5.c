@@ -1,26 +1,42 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   free.c                                             :+:      :+:    :+:   */
+/*   tokenize5.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/02/25 16:02:48 by hbelaih           #+#    #+#             */
-/*   Updated: 2025/02/25 16:16:03 by hbelaih          ###   ########.fr       */
+/*   Created: 2025/03/13 14:00:43 by hbelaih           #+#    #+#             */
+/*   Updated: 2025/03/13 14:08:32 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
+void	print_tokens(t_token *tokens)
+{
+	t_token	*current;
+
+	current = tokens;
+	while (current)
+	{
+		printf("Token: '%s' (Type: ", current->value);
+		print_token_type(current->type);
+		printf(")\n");
+		current = current->next;
+	}
+}
+
 void	free_tokens(t_token *tokens)
 {
-	t_token	*temp;
+	t_token	*current;
+	t_token	*next;
 
-	while (tokens)
+	current = tokens;
+	while (current)
 	{
-		temp = tokens;
-		tokens = tokens->next;
-		free(temp->value);
-		free(temp);
+		next = current->next;
+		free(current->value);
+		free(current);
+		current = next;
 	}
 }
