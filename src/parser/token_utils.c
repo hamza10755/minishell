@@ -11,56 +11,55 @@
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-
 #include <stdlib.h>
 
-int         is_quote(char c)
+int	is_quote(char c)
 {
-    return (c == '\'' || c == '\"');
+	return (c == '\'' || c == '\"');
 }
 
-int         is_whitespace(char c)
+int	is_whitespace(char c)
 {
-    return (c == ' ' || c == '\t' || c == '\n');
+	return (c == ' ' || c == '\t' || c == '\n');
 }
 
-void        append_char(char *buffer, size_t *index, char c)
+void	append_char(char *buffer, size_t *index, char c)
 {
-    buffer[(*index)++] = c;
-    buffer[*index] = '\0';
+	buffer[(*index)++] = c;
+	buffer[*index] = '\0';
 }
 
-t_token     *create_new_token(const char *value, int type)
+t_token	*create_new_token(const char *value, int type)
 {
-    t_token *new_token;
-    extern char **environ;
+	t_token		*new_token;
+	extern char	**environ;
 
-    new_token = malloc(sizeof(t_token));
-    if (!new_token)
-        return (NULL);
-    new_token->value = expand_string(value, environ);
-    if (!new_token->value)
-    {
-        free(new_token);
-        return (NULL);
-    }
-    new_token->type = type;
-    new_token->next = NULL;
-    return (new_token);
+	new_token = malloc(sizeof(t_token));
+	if (!new_token)
+		return (NULL);
+	new_token->value = expand_string(value, environ);
+	if (!new_token->value)
+	{
+		free(new_token);
+		return (NULL);
+	}
+	new_token->type = type;
+	new_token->next = NULL;
+	return (new_token);
 }
 
-char        *allocate_res_buff(char *str)
+char	*allocate_res_buff(char *str)
 {
-    char    *res;
-    size_t  init_size;
+	char	*res;
+	size_t	init_size;
 
-    if (!str)
-        return (NULL);
-    init_size = ft_strlen(str) * 4 + 1;
-    if (init_size < 1024)
-        init_size = 1024;
-    res = malloc(sizeof(char) * init_size);
-    if (!res)
-        return (NULL);
-    return (res);
+	if (!str)
+		return (NULL);
+	init_size = ft_strlen(str) * 4 + 1;
+	if (init_size < 1024)
+		init_size = 1024;
+	res = malloc(sizeof(char) * init_size);
+	if (!res)
+		return (NULL);
+	return (res);
 }
