@@ -6,18 +6,20 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:08:18 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:50:30 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/03/15 21:42:46 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-void	print_token_type(int type)
+const char	*get_token_type_name(int type)
 {
 	const char	*type_names[] = {"WORD", "WHITESPACE", "PIPE", "REDIR",
-		"HEREDOC", "APPEND", "SEMICOLON", "QUOTE", "ESCAPE"};
+			"HEREDOC", "APPEND", "SEMICOLON", "QUOTE", "ESCAPE"};
 
-	printf("%s", type_names[type]);
+	if (type >= 0 && type <= 8)
+		return (type_names[type]);
+	return ("UNKNOWN");
 }
 
 void	print_tokens(t_token *tokens)
@@ -28,7 +30,7 @@ void	print_tokens(t_token *tokens)
 	while (current)
 	{
 		printf("Token: '%s' (Type: ", current->value);
-		print_token_type(current->type);
+		get_token_type_name(current->type);
 		printf(")\n");
 		current = current->next;
 	}

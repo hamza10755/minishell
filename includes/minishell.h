@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 19:37:40 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:50:04 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/03/15 21:41:03 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ t_token				*init_process_vars(size_t *j, int *i, int *in_word);
 t_token				*tokenize(const char *input);
 
 // token_debug.c
-void				print_token_type(int type);
+const char			*get_token_type_name(int type);
 void				print_tokens(t_token *tokens);
 void				free_tokens(t_token *tokens);
 int					ensure_capacity(char **res, size_t *cap, size_t needed);
