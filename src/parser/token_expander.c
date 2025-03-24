@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_expander.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
+/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:03:41 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:34:01 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/03/24 11:23:45 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

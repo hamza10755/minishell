@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
+/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 19:37:40 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 21:41:03 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/03/24 13:59:00 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@
 # include <string.h>
 # include <sys/wait.h>
 # include <unistd.h>
+#include <dirent.h>
 
 // Token structure
 typedef struct s_token
@@ -95,5 +96,10 @@ void				free_tokens(t_token *tokens);
 int					ensure_capacity(char **res, size_t *cap, size_t needed);
 int					copy_expanded_value(char **res, size_t *j, char *expanded,
 						size_t *capacity);
+
+//builtins
+int builtin_cd(t_token *tokens, char **env);
+int builtin_pwd(t_token *tokens, char **env);
+int builtin_env(t_token *tokens, char **env);
 
 #endif
