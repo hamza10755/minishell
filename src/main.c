@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:14:32 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/24 14:05:14 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/04/03 19:41:24 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,27 @@ int main(void)
 				if (ft_strncmp(tokens->value, "env", 4) == 0)
                 {
                     builtin_env(tokens, environ);
+                    free_tokens(tokens);
+                    free(input);
+                    continue;
+                }
+                if (ft_strncmp(tokens->value, "echo", 5) == 0)
+                {
+                    builtin_echo(tokens, environ);
+                    free_tokens(tokens);
+                    free(input);
+                    continue;
+                }
+                if (ft_strncmp(tokens->value, "unset", 5) == 0)
+                {
+                    builtin_unset(tokens, environ);
+                    free_tokens(tokens);
+                    free(input);
+                    continue;
+                }
+                if (ft_strncmp(tokens->value, "export", 7) == 0)
+                {
+                    builtin_export(tokens, environ);
                     free_tokens(tokens);
                     free(input);
                     continue;

@@ -6,12 +6,11 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:04:42 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:39:22 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/03 19:30:05 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
-#include <stdlib.h>
 
 int	is_quote(char c)
 {

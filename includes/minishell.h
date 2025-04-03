@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
+/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/13 19:37:40 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/24 13:59:00 by hbelaih          ###   ########.fr       */
+/*   Updated: 2025/04/03 19:41:55 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,5 +101,8 @@ int					copy_expanded_value(char **res, size_t *j, char *expanded,
 int builtin_cd(t_token *tokens, char **env);
 int builtin_pwd(t_token *tokens, char **env);
 int builtin_env(t_token *tokens, char **env);
+int builtin_echo(t_token *tokens, char **env);
+int builtin_unset(t_token *tokens, char **env);
+int builtin_export(t_token *tokens, char **env);
 
 #endif
