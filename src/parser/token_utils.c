@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:04:42 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/03 19:30:05 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/11 04:03:41 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,11 @@ void	append_char(char *buffer, size_t *index, char c)
 t_token	*create_new_token(const char *value, int type)
 {
 	t_token		*new_token;
-	extern char	**environ;
 
 	new_token = malloc(sizeof(t_token));
 	if (!new_token)
 		return (NULL);
-	new_token->value = expand_string(value, environ);
+	new_token->value = ft_strdup(value);
 	if (!new_token->value)
 	{
 		free(new_token);

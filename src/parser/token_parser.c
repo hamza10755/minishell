@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:06:25 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:07:58 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/11 04:34:50 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ int	process_quote_content(const char *input, int *i, char *buffer, size_t *j,
 		char quote_char)
 {
 	(*i)++;
+	append_char(buffer, j, quote_char);
 	while (input[*i] && input[*i] != quote_char)
 	{
 		append_char(buffer, j, input[*i]);
@@ -60,6 +61,7 @@ int	process_quote_content(const char *input, int *i, char *buffer, size_t *j,
 	}
 	if (input[*i] == quote_char)
 	{
+		append_char(buffer, j, quote_char);
 		(*i)++;
 		return (1);
 	}
