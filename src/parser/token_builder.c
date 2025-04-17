@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:05:41 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:08:36 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/11 04:46:20 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ t_token	*add_token(t_token **tokens, const char *value, int type)
 		while (temp->next)
 			temp = temp->next;
 		temp->next = new_token;
+		new_token->prev = temp;
 	}
 	return (new_token);
 }

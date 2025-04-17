@@ -6,11 +6,67 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:14:32 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/03 19:41:24 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/17 21:44:21 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+
+int g_exit_status = 0;
+
+static int  is_command(t_token *token)
+{
+    if (!token || !token->value)
+        return (0);
+    if (token->type != TOKEN_WORD)
+        return (0);
+    if (is_builtin(token))
+        return (0);
+    if (token->prev && (token->prev->type == TOKEN_PIPE || 
+        token->prev->type == TOKEN_REDIR || 
+        token->prev->type == TOKEN_APPEND || 
+        token->prev->type == TOKEN_HEREDOC))
+        return (0);
+    return (1);
+}
+
+static int  is_argument(t_token *token)
+{
+    if (!token || !token->value)
+        return (0);
+    if (token->type != TOKEN_WORD)
+        return (0);
+    if (is_builtin(token))
+        return (0);
+    if (is_command(token))
+        return (0);
+    return (1);
+}
+
+static void print_token_info(t_token *token)
+{
+    printf("Token: %s\n", token->value);
+    printf("Type: %s\n", get_token_type_name(token->type));
+    
+    if (token->type == TOKEN_WORD)
+    {
+        if (is_builtin(token))
+            printf("Category: Builtin Command\n");
+        else if (is_command(token))
+            printf("Category: Command\n");
+        else if (is_argument(token))
+            printf("Category: Argument\n");
+    }
+    else if (token->type == TOKEN_REDIR)
+        printf("Category: Redirection\n");
+    else if (token->type == TOKEN_PIPE)
+        printf("Category: Pipe\n");
+    else if (token->type == TOKEN_HEREDOC)
+        printf("Category: Heredoc\n");
+    else if (token->type == TOKEN_APPEND)
+        printf("Category: Append Redirection\n");
+    printf("-------------------\n");
+}
 
 int main(void)
 {
@@ -18,6 +74,7 @@ int main(void)
     t_token     *tokens;
     t_token     *temp;
     extern char **environ;
+    int         exit_status = 0;
 
     tokens = NULL;
     while (1)
@@ -31,69 +88,24 @@ int main(void)
             if (!ft_strncmp(input, "exit", 5))
             {
                 free(input);
-                exit(0);
+                exit(exit_status);
             }
             tokens = tokenize(input);
             if (tokens)
             {
-                if (ft_strncmp(tokens->value, "cd", 3) == 0)
+                expand_tokens(tokens, environ, &exit_status);
+                temp = tokens;
+                while (temp)
                 {
-                    builtin_cd(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
+                    print_token_info(temp);
+                    temp = temp->next;
                 }
-				if (ft_strncmp(tokens->value, "pwd", 4) == 0)
-                {
-                    builtin_pwd(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
-                }
-				if (ft_strncmp(tokens->value, "env", 4) == 0)
-                {
-                    builtin_env(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
-                }
-                if (ft_strncmp(tokens->value, "echo", 5) == 0)
-                {
-                    builtin_echo(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
-                }
-                if (ft_strncmp(tokens->value, "unset", 5) == 0)
-                {
-                    builtin_unset(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
-                }
-                if (ft_strncmp(tokens->value, "export", 7) == 0)
-                {
-                    builtin_export(tokens, environ);
-                    free_tokens(tokens);
-                    free(input);
-                    continue;
-                }
+                execute_command(tokens, environ, &exit_status);
+                free_tokens(tokens);
             }
-        }
-        if (tokens)
-        {
-            expand_tokens(tokens, environ);
-            temp = tokens;
-            while (temp)
-            {
-                printf("Token: %s (Type: %s)\n", temp->value, 
-                       get_token_type_name(temp->type));
-                temp = temp->next;
-            }
-            free_tokens(tokens);
         }
         free(input);
     }
     free_tokens(tokens);
-    return (0);
+    return (exit_status);
 }

@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:06:52 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/03/15 18:42:29 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/12 03:00:57 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,12 +19,13 @@ void	handle_word(const char *input, int *i, char *buffer, size_t *j,
 	char		*temp;
 	int			start;
 	extern char	**environ;
+	int			exit_status = 0;  // Initialize exit status
 
 	*in_word = 1;
 	if (input[*i] == '$' || input[*i] == '~')
 	{
 		start = *i;
-		expanded = expand_string(input + *i, environ);
+		expanded = expand_string(input + *i, environ, &exit_status);
 		if (expanded)
 		{
 			temp = expanded;

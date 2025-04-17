@@ -6,225 +6,295 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:03:41 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/11 04:32:29 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/17 22:43:19 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-int  append_expanded(char **buffer, size_t *pos, size_t *cap, char *value)
+int	append_expanded(char **buffer, size_t *pos, size_t *cap, char *value)
 {
-    size_t  len;
+	size_t	len;
 
-    if (!value)
-        return (1);
-    len = ft_strlen(value);
-    if (!ensure_capacity(buffer, cap, *pos + len + 1))
-        return (0);
-    ft_strlcpy(*buffer + *pos, value, *cap - *pos + 1);
-    *pos += len;
-    return (1);
+	if (!value)
+		return (1);
+	len = ft_strlen(value);
+	if (!ensure_capacity(buffer, cap, *pos + len + 1))
+		return (0);
+	ft_strlcpy(*buffer + *pos, value, *cap - *pos + 1);
+	*pos += len;
+	return (1);
 }
 
-static int  is_valid_var_char(char c)
+static int	is_valid_var_char(char c)
 {
-    return (ft_isalnum(c) || c == '_');
+	return (ft_isalnum(c) || c == '_');
 }
 
-static int  count_var_chars(const char *str)
+static int	count_var_chars(const char *str)
 {
-    int i;
+	int	count;
 
-    i = 0;
-    while (str[i] && is_valid_var_char(str[i]))
-        i++;
-    return (i);
+	count = 0;
+	while (str[count] && is_valid_var_char(str[count]))
+		count++;
+	return (count);
 }
 
-static char *extract_var_name(const char *str)
+static char	*extract_var_name(const char *str, int len)
 {
-    int     len;
-    char    *var;
+	char	*name;
 
-    len = count_var_chars(str);
-    var = malloc(len + 1);
-    if (!var)
-        return (NULL);
-    ft_strlcpy(var, str, len + 1);
-    return (var);
+	name = malloc(len + 1);
+	if (!name)
+		return (NULL);
+	ft_strlcpy(name, str, len + 1);
+	return (name);
 }
 
-static int  check_single_quotes(const char *input, int pos)
+static int handle_special_var(const char *name, char **buffer, size_t *pos, size_t *cap, int *exit_status)
 {
-    int i;
-    int count;
+	char	*value;
 
-    i = 0;
-    count = 0;
-    while (i < pos)
-    {
-        if (input[i] == '\'')
-            count++;
-        i++;
-    }
-    return (count % 2);
+	if (ft_strncmp(name, "?", 2) == 0)
+	{
+		value = ft_itoa(*exit_status);
+		if (!value)
+			return (1);
+		if (append_expanded(buffer, pos, cap, value) != 0)
+		{
+			free(value);
+			return (1);
+		}
+		free(value);
+		return (0);
+	}
+	return (-1);
 }
 
-static int  handle_var_expansion(const char *input, int *i, char **buffer,
-    size_t *pos, size_t *cap, char **env)
+int expand_var(const char *input, int *i, char **buffer, size_t *pos, size_t *cap, char **env, int *exit_status)
 {
-    char    var_name[256];
-    int     k;
-    char    *value;
+	char	*name;
+	char	*value;
+	int		len;
+	int		special;
+	int		in_quotes;
 
-    k = 0;
-    (*i)++;
-    if (check_single_quotes(input, *i))
-    {
-        append_char(*buffer, pos, '$');
-        return (1);
-    }
-    while (input[*i] && is_valid_var_char(input[*i]) && k < 255)
-        var_name[k++] = input[(*i)++];
-    var_name[k] = '\0';
-    if (k == 0)
-    {
-        append_char(*buffer, pos, '$');
-        return (1);
-    }
-    value = get_env_value(var_name, env);
-    return (append_expanded(buffer, pos, cap, value));
+	in_quotes = 0;
+	if (*i > 0 && input[*i - 1] == '\"')
+		in_quotes = 1;
+
+	(*i)++;
+	if (input[*i] == '?')
+	{
+		(*i)++;
+		return (handle_special_var("?", buffer, pos, cap, exit_status));
+	}
+	if (ft_isdigit(input[*i]))
+	{
+		(*i)++;
+		while (input[*i] && is_valid_var_char(input[*i]))
+		{
+			append_char(*buffer, pos, input[*i]);
+			(*i)++;
+		}
+		return (0);
+	}
+	len = count_var_chars(input + *i);
+	if (len == 0)
+	{
+		if (append_expanded(buffer, pos, cap, "$") != 0)
+			return (1);
+		return (0);
+	}
+	name = extract_var_name(input + *i, len);
+	if (!name)
+		return (1);
+	*i += len;
+	special = handle_special_var(name, buffer, pos, cap, exit_status);
+	if (special != -1)
+	{
+		free(name);
+		return (special);
+	}
+	value = get_env_value(name, env);
+	free(name);
+	if (!value)
+		return (0);
+
+	if (in_quotes)
+	{
+		if (append_expanded(buffer, pos, cap, value) != 0)
+		{
+			free(value);
+			return (1);
+		}
+	}
+	else
+	{
+		char	*new_value;
+		int		j;
+		int		k;
+		int		space_count;
+
+		new_value = malloc(ft_strlen(value) + 1);
+		if (!new_value)
+		{
+			free(value);
+			return (1);
+		}
+		j = 0;
+		k = 0;
+		space_count = 0;
+		while (value[j])
+		{
+			if (value[j] == ' ')
+			{
+				if (space_count == 0)
+					new_value[k++] = ' ';
+				space_count++;
+			}
+			else
+			{
+				new_value[k++] = value[j];
+				space_count = 0;
+			}
+			j++;
+		}
+		new_value[k] = '\0';
+		if (append_expanded(buffer, pos, cap, new_value) != 0)
+		{
+			free(value);
+			free(new_value);
+			return (1);
+		}
+		free(new_value);
+	}
+	free(value);
+	return (0);
 }
 
-static int  handle_tilde_expansion(const char *input, int i, char **buffer,
-    size_t *pos, size_t *cap, char **env)
+char	*expand_string(const char *input, char **env, int *exit_status)
 {
-    if (i == 0 || is_whitespace(input[i - 1]))
-        return (append_expanded(buffer, pos, cap, get_env_value("HOME", env)));
-    append_char(*buffer, pos, '~');
-    return (1);
+	char	*result;
+	size_t	pos;
+	size_t	cap;
+	int		i;
+	char	*tmp;
+
+	if (!input)
+		return (NULL);
+	result = malloc(1);
+	if (!result)
+		return (NULL);
+	result[0] = '\0';
+	pos = 0;
+	cap = 1;
+	i = 0;
+	while (input[i])
+	{
+		if (pos + 1 >= cap)
+		{
+			cap *= 2;
+			tmp = malloc(cap);
+			if (!tmp)
+				return (free(result), NULL);
+			ft_memcpy(tmp, result, pos);
+			free(result);
+			result = tmp;
+		}
+		if (input[i] == '\'')
+		{
+			i++;
+			while (input[i] && input[i] != '\'')
+			{
+				append_char(result, &pos, input[i]);
+				i++;
+			}
+			if (input[i] == '\'')
+				i++;
+		}
+		else if (input[i] == '\"')
+		{
+			i++;
+			while (input[i] && input[i] != '\"')
+			{
+				if (input[i] == '$')
+				{
+					if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
+						return (free(result), NULL);
+				}
+				else
+				{
+					append_char(result, &pos, input[i]);
+					i++;
+				}
+			}
+			if (input[i] == '\"')
+				i++;
+		}
+		else if (input[i] == '$')
+		{
+			if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
+				return (free(result), NULL);
+		}
+		else
+		{
+			append_char(result, &pos, input[i]);
+			i++;
+		}
+	}
+	if (pos + 1 >= cap)
+	{
+		cap *= 2;
+		tmp = malloc(cap);
+		if (!tmp)
+			return (free(result), NULL);
+		ft_memcpy(tmp, result, pos);
+		free(result);
+		result = tmp;
+	}
+	append_char(result, &pos, '\0');
+	return (result);
 }
 
-static int  process_char(const char *input, int *i, char **buffer,
-    size_t *pos, size_t *cap, char **env)
+void	expand_tokens(t_token *tokens, char **env, int *exit_status)
 {
-    if (input[*i] == '$')
-        return (handle_var_expansion(input, i, buffer, pos, cap, env));
-    if (input[*i] == '~')
-        return (handle_tilde_expansion(input, *i, buffer, pos, cap, env));
-    append_char(*buffer, pos, input[(*i)++]);
-    return (1);
+	t_token	*current;
+	char	*expanded;
+
+	current = tokens;
+	while (current)
+	{
+		if (current->type == TOKEN_WORD)
+		{
+			expanded = expand_string(current->value, env, exit_status);
+			if (expanded)
+			{
+				free(current->value);
+				current->value = expanded;
+			}
+		}
+		current = current->next;
+	}
 }
 
-char    *expand_string(const char *input, char **env)
+char	*get_env_value(const char *name, char **env)
 {
-    char    *buffer;
-    size_t  pos;
-    size_t  cap;
-    int     i;
+	int		i;
+	char	*value;
 
-    if (!input || !ft_strchr(input, '$'))
-        return (ft_strdup(input ? input : ""));
-    buffer = allocate_res_buff((char *)input);
-    if (!buffer)
-        return (NULL);
-    pos = 0;
-    cap = ft_strlen(input) * 4 + 1;
-    i = 0;
-    while (input[i])
-    {
-        if (!process_char(input, &i, &buffer, &pos, &cap, env))
-        {
-            free(buffer);
-            return (NULL);
-        }
-    }
-    buffer[pos] = '\0';
-    return (buffer);
+	i = 0;
+	while (env[i])
+	{
+		if (ft_strncmp(env[i], name, ft_strlen(name)) == 0
+			&& env[i][ft_strlen(name)] == '=')
+		{
+			value = ft_strdup(env[i] + ft_strlen(name) + 1);
+			return (value);
+		}
+		i++;
+	}
+	return (NULL);
 }
 
-static void process_token_value(t_token *token, char **env)
-{
-    char    *temp;
-    int     i;
-    int     in_quotes;
-    char    quote_type;
-
-    i = 0;
-    in_quotes = 0;
-    quote_type = 0;
-    temp = ft_strdup("");
-    while (token->value[i])
-    {
-        if ((token->value[i] == '\'' || token->value[i] == '\"') && !in_quotes)
-        {
-            in_quotes = 1;
-            quote_type = token->value[i];
-        }
-        else if (in_quotes && token->value[i] == quote_type)
-        {
-            in_quotes = 0;
-            quote_type = 0;
-        }
-        else if (token->value[i] == '$' && (!in_quotes || quote_type == '\"'))
-        {
-            char    *var;
-            char    *value;
-            char    *new_temp;
-
-            var = extract_var_name(token->value + i + 1);
-            value = get_env_value(var, env);
-            if (value)
-            {
-                new_temp = ft_strjoin(temp, value);
-                free(temp);
-                temp = new_temp;
-            }
-            i += ft_strlen(var) + 1;
-            free(var);
-            continue;
-        }
-        else
-        {
-            char    str[2];
-            char    *new_temp;
-
-            str[0] = token->value[i];
-            str[1] = '\0';
-            new_temp = ft_strjoin(temp, str);
-            free(temp);
-            temp = new_temp;
-        }
-        i++;
-    }
-    free(token->value);
-    token->value = temp;
-}
-
-void    expand_tokens(t_token *tokens, char **env)
-{
-    t_token *current;
-
-    current = tokens;
-    while (current)
-    {
-        if (current->type == TOKEN_WORD)
-            process_token_value(current, env);
-        current = current->next;
-    }
-}
-
-char    *get_env_value(const char *name, char **env)
-{
-    int i;
-
-    i = 0;
-    while (env[i])
-    {
-        if (ft_strncmp(env[i], name, ft_strlen(name)) == 0
-            && env[i][ft_strlen(name)] == '=')
-            return (env[i] + ft_strlen(name) + 1);
-        i++;
-    }
-    return (NULL);
-}

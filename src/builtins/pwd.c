@@ -12,24 +12,24 @@
 
 #include "../../includes/minishell.h"
 
-int builtin_pwd(t_token *tokens, char **env)
+int	builtin_pwd(t_token *tokens, char **env)
 {
-    char *pwd;
-    (void)tokens;
+	char *pwd;
+	(void)tokens;
 
-    pwd = get_env_value("PWD", env);
-    if (pwd)
-    {
-        printf("%s\n", pwd);
-        return (0);
-    }
-    pwd = getcwd(NULL, 0);
-    if (!pwd)
-    {
-        printf("minishell: pwd: cannot get current directory\n");
-        return (1);
-    }
-    printf("%s\n", pwd);
-    free(pwd);
-    return (0);
+	pwd = get_env_value("PWD", env);
+	if (pwd)
+	{
+		printf("%s\n", pwd);
+		return (0);
+	}
+	pwd = getcwd(NULL, 0);
+	if (!pwd)
+	{
+		printf("minishell: pwd: cannot get current directory\n");
+		return (1);
+	}
+	printf("%s\n", pwd);
+	free(pwd);
+	return (0);
 }
