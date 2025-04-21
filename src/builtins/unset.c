@@ -5,57 +5,85 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/03 18:32:59 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/03 19:27:15 by hamzabillah      ###   ########.fr       */
+/*   Created: 2025/04/21 23:30:00 by hamzabillah       #+#    #+#             */
+/*   Updated: 2025/04/21 23:29:02 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/minishell.h"
+#include "../../includes/minishell.h"
 
-static int	is_valid_identifier(char *arg)
+static int	validate_identifier(const char *arg)
 {
-	if (!arg || !arg[0] || arg[0] == '-')
+	int	i;
+
+	if (!arg || !arg[0] || ft_isdigit(arg[0]))
 		return (0);
+	i = 0;
+	while (arg[i])
+	{
+		if (!ft_isalnum(arg[i]) && arg[i] != '_')
+			return (0);
+		i++;
+	}
 	return (1);
 }
 
-static int	remove_variable(char *arg)
+static int	remove_env_var(t_env **env, const char *arg)
 {
-	if (!is_valid_identifier(arg))
+	t_env	*current;
+	t_env	*prev;
+	size_t	arg_len;
+
+	arg_len = ft_strlen(arg);
+	current = *env;
+	prev = NULL;
+	while (current)
 	{
-		ft_putstr_fd("minishell: unset: `", STDERR_FILENO);
-		ft_putstr_fd(arg, STDERR_FILENO);
-		ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
-		return (-1);
-	}
-	if (unsetenv(arg) != 0)
-	{
-		ft_putstr_fd("minishell: unset: failed to remove '", STDERR_FILENO);
-		ft_putstr_fd(arg, STDERR_FILENO);
-		ft_putstr_fd("'\n", STDERR_FILENO);
-		return (-1);
+		if (ft_strncmp(current->value, arg, arg_len) == 0
+			&& (current->value[arg_len] == '='
+				|| current->value[arg_len] == '\0'))
+		{
+			if (prev)
+				prev->next = current->next;
+			else
+				*env = current->next;
+			free(current->value);
+			free(current);
+			return (0);
+		}
+		prev = current;
+		current = current->next;
 	}
 	return (0);
 }
 
-int	builtin_unset(t_token *tokens, char **env)
+int	builtin_unset(t_token *tokens, char **env_array)
 {
-	t_token *current;
-	int status;
+	static t_env	*env = NULL;
+	int				ret;
 
-	(void)env;
-	if (!tokens || !tokens->next || !tokens->next->value)
+	if (!env)
 	{
-		ft_putstr_fd("minishell: unset: missing argument\n", STDERR_FILENO);
-		return (-1);
+		env = init_env(env_array);
+		if (!env)
+			return (1);
 	}
-	current = tokens->next;
-	status = 0;
-	while (current)
+	if (!tokens->next)
+		return (0);
+	ret = 0;
+	tokens = tokens->next;
+	while (tokens)
 	{
-		if (remove_variable(current->value) == -1)
-			status = -1;
-		current = current->next;
+		if (!validate_identifier(tokens->value))
+		{
+			ft_putstr_fd("minishell: unset: `", STDERR_FILENO);
+			ft_putstr_fd(tokens->value, STDERR_FILENO);
+			ft_putstr_fd("': not a valid identifier\n", STDERR_FILENO);
+			ret = 1;
+		}
+		else
+			remove_env_var(&env, tokens->value);
+		tokens = tokens->next;
 	}
-	return (status);
+	return (ret);
 }

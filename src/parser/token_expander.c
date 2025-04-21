@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:03:41 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/17 22:43:19 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/21 22:53:52 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,88 +174,114 @@ int expand_var(const char *input, int *i, char **buffer, size_t *pos, size_t *ca
 	return (0);
 }
 
-char	*expand_string(const char *input, char **env, int *exit_status)
+char *expand_string(const char *input, char **env, int *exit_status)
 {
-	char	*result;
-	size_t	pos;
-	size_t	cap;
-	int		i;
-	char	*tmp;
-
-	if (!input)
-		return (NULL);
-	result = malloc(1);
-	if (!result)
-		return (NULL);
-	result[0] = '\0';
-	pos = 0;
-	cap = 1;
-	i = 0;
-	while (input[i])
-	{
-		if (pos + 1 >= cap)
-		{
-			cap *= 2;
-			tmp = malloc(cap);
-			if (!tmp)
-				return (free(result), NULL);
-			ft_memcpy(tmp, result, pos);
-			free(result);
-			result = tmp;
-		}
-		if (input[i] == '\'')
-		{
-			i++;
-			while (input[i] && input[i] != '\'')
-			{
-				append_char(result, &pos, input[i]);
-				i++;
-			}
-			if (input[i] == '\'')
-				i++;
-		}
-		else if (input[i] == '\"')
-		{
-			i++;
-			while (input[i] && input[i] != '\"')
-			{
-				if (input[i] == '$')
-				{
-					if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
-						return (free(result), NULL);
-				}
-				else
-				{
-					append_char(result, &pos, input[i]);
-					i++;
-				}
-			}
-			if (input[i] == '\"')
-				i++;
-		}
-		else if (input[i] == '$')
-		{
-			if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
-				return (free(result), NULL);
-		}
-		else
-		{
-			append_char(result, &pos, input[i]);
-			i++;
-		}
-	}
-	if (pos + 1 >= cap)
-	{
-		cap *= 2;
-		tmp = malloc(cap);
-		if (!tmp)
-			return (free(result), NULL);
-		ft_memcpy(tmp, result, pos);
-		free(result);
-		result = tmp;
-	}
-	append_char(result, &pos, '\0');
-	return (result);
+    char    *result;
+    size_t  pos;
+    size_t  cap;
+    int     i;
+    char    *tmp;
+    if (!input)
+        return (NULL);
+    cap = 16;
+    result = malloc(cap);
+    if (!result)
+        return (NULL);
+    result[0] = '\0';
+    pos = 0;
+    i = 0;
+    while (input[i])
+    {
+        if (pos + 2 >= cap)
+        {
+            cap *= 2;
+            tmp = malloc(cap);
+            if (!tmp)
+            {
+                free(result);
+                return (NULL);
+            }
+            ft_memcpy(tmp, result, pos);
+            tmp[pos] = '\0';
+            free(result);
+            result = tmp;
+        }
+        if (input[i] == '\'')
+        {
+            i++;
+            while (input[i] && input[i] != '\'')
+            {
+                if (pos + 2 >= cap)
+                {
+                    cap *= 2;
+                    tmp = malloc(cap);
+                    if (!tmp)
+                    {
+                        free(result);
+                        return (NULL);
+                    }
+                    ft_memcpy(tmp, result, pos);
+                    tmp[pos] = '\0';
+                    free(result);
+                    result = tmp;
+                }
+                append_char(result, &pos, input[i]);
+                i++;
+            }
+            if (input[i] == '\'')
+                i++;
+        }
+        else if (input[i] == '\"')
+        {
+            i++;
+            while (input[i] && input[i] != '\"')
+            {
+                if (input[i] == '$')
+                {
+                    if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
+                    {
+                        free(result);
+                        return (NULL);
+                    }
+                }
+                else
+                {
+                    if (pos + 2 >= cap)
+                    {
+                        cap *= 2;
+                        tmp = malloc(cap);
+                        if (!tmp)
+                        {
+                            free(result);
+                            return (NULL);
+                        }
+                        ft_memcpy(tmp, result, pos);
+                        tmp[pos] = '\0';
+                        free(result);
+                        result = tmp;
+                    }
+                    append_char(result, &pos, input[i]);
+                    i++;
+                }
+            }
+            if (input[i] == '\"')
+                i++;
+        }
+        else if (input[i] == '$')
+        {
+            if (expand_var(input, &i, &result, &pos, &cap, env, exit_status) == -1)
+            {
+                free(result);
+                return (NULL);
+            }
+        }
+        else
+        {
+            append_char(result, &pos, input[i]);
+            i++;
+        }
+    }
+    return (result);
 }
 
 void	expand_tokens(t_token *tokens, char **env, int *exit_status)
