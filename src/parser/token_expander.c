@@ -6,7 +6,7 @@
 /*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/15 18:03:41 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/21 22:53:52 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/22 11:35:44 by hamzabillah      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,43 +284,96 @@ char *expand_string(const char *input, char **env, int *exit_status)
     return (result);
 }
 
-void	expand_tokens(t_token *tokens, char **env, int *exit_status)
+void expand_tokens(t_token *tokens, char **env, int *exit_status)
 {
-	t_token	*current;
-	char	*expanded;
+    t_token *current;
+    t_token *next;
+    char    *expanded;
+    char    **split_tokens;
+    int     i;
 
-	current = tokens;
-	while (current)
-	{
-		if (current->type == TOKEN_WORD)
-		{
-			expanded = expand_string(current->value, env, exit_status);
-			if (expanded)
-			{
-				free(current->value);
-				current->value = expanded;
-			}
-		}
-		current = current->next;
-	}
+    current = tokens;
+    while (current)
+    {
+        next = current->next;
+        if (current->type == TOKEN_WORD)
+        {
+            expanded = expand_string(current->value, env, exit_status);
+            if (expanded)
+            {
+                if (current == tokens && ft_strchr(expanded, ' ') != NULL)
+                {
+                    split_tokens = ft_split(expanded, ' ');
+                    if (split_tokens)
+                    {
+                        free(current->value);
+                        current->value = ft_strdup(split_tokens[0]);
+                        
+                        i = 1;
+                        while (split_tokens[i])
+                        {
+                            t_token *new_token = malloc(sizeof(t_token));
+                            if (!new_token)
+                                break;
+                            new_token->value = ft_strdup(split_tokens[i]);
+                            new_token->type = TOKEN_WORD;
+                            new_token->exit_status = *exit_status;
+                            new_token->next = NULL;
+                            new_token->prev = NULL;
+                            
+                            // Insert into list
+                            new_token->next = current->next;
+                            if (current->next)
+                                current->next->prev = new_token;
+                            new_token->prev = current;
+                            current->next = new_token;
+                            
+                            current = new_token;
+                            
+                            i++;
+                        }                        
+                        i = 0;
+                        while (split_tokens[i])
+                            free(split_tokens[i++]);
+                        free(split_tokens);
+                    }
+                    free(expanded);
+                }
+                else
+                {
+                    free(current->value);
+                    current->value = expanded;
+                }
+            }
+        }
+        current = next;
+    }
 }
 
-char	*get_env_value(const char *name, char **env)
+char *get_env_value(const char *name, char **env)
 {
-	int		i;
-	char	*value;
-
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], name, ft_strlen(name)) == 0
-			&& env[i][ft_strlen(name)] == '=')
-		{
-			value = ft_strdup(env[i] + ft_strlen(name) + 1);
-			return (value);
-		}
-		i++;
-	}
-	return (NULL);
+    t_env *current = get_env();
+    while (current)
+    {
+        if (ft_strncmp(current->value, name, ft_strlen(name)) == 0
+            && current->value[ft_strlen(name)] == '=')
+        {
+            return ft_strdup(current->value + ft_strlen(name) + 1);
+        }
+        current = current->next;
+    }
+    
+    int i = 0;
+    while (env && env[i])
+    {
+        if (ft_strncmp(env[i], name, ft_strlen(name)) == 0
+            && env[i][ft_strlen(name)] == '=')
+        {
+            return ft_strdup(env[i] + ft_strlen(name) + 1);
+        }
+        i++;
+    }
+    
+    return NULL;
 }
 
