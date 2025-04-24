@@ -3,35 +3,36 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: hamzabillah <hamzabillah@student.42.fr>    +#+  +:+       +#+        */
+/*   By: hbelaih <hbelaih@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/21 23:30:00 by hamzabillah       #+#    #+#             */
-/*   Updated: 2025/04/22 11:14:33 by hamzabillah      ###   ########.fr       */
+/*   Updated: 2025/04/24 16:59:58 by hbelaih          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../includes/minishell.h"
 
-static int	validate_identifier(char *str)
+static int validate_identifier(char *str)
 {
-	int	i;
+    int i;
 
-	if (!str || !*str)
-		return (0);
-	if (!ft_isalpha(*str) && *str != '_')
-		return (0);
-	i = 1;
-	while (str[i] && str[i] != '=' && str[i] != '+')
-	{
-		if (!ft_isalnum(str[i]) && str[i] != '_')
-			return (0);
-		i++;
-	}
-	if (str[i] == '+' && str[i + 1] == '=')
-		return (1);
-	if (str[i] == '=')
-		return (1);
-	return (0);
+    if (!str || !*str)
+        return (0);
+    if (!ft_isalpha(*str) && *str != '_')
+        return (0);
+    i = 1;
+    while (str[i])
+    {
+        if (str[i] == '=')
+            return (1);
+        if (str[i] == '+' && str[i + 1] == '=')
+            return (1);
+        if (!ft_isalnum(str[i]) && str[i] != '_')
+            return (0);
+        i++;
+    }
+
+    return (1);
 }
 
 static int	set_or_append_var(t_env **env, char *var)
@@ -134,6 +135,17 @@ static int	set_or_append_var(t_env **env, char *var)
 			free(new);
 			return (1);
 		}
+	}
+	else
+	{
+		temp = ft_strjoin(name, "=");
+		free(name);
+		if (!temp)
+		{
+			free(new);
+			return (1);
+		}
+		new->value = temp;
 	}
 	new->next = NULL;
 	if (!*env)
